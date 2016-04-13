@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">BeaconApp</string>
+    <string name="textview_school_name">Metropolia UAS</string>
+    <string name="textview_student_name">Student: not registered</string>
+    <string name="textview_subject_name">Subject: not found</string>
+    <string name="button_attend">Attend</string>
+
+
+    <string name="hint_email">Email</string>
+    <string name="hint_password">Password</string>
+    <string name="hint_name">Fullname</string>
+    <string name="btn_login">LOGIN</string>
+    <string name="btn_register">REGISTER</string>
+    <string name="btn_link_to_register">Not a member? Sign up now.</string>
+    <string name="btn_link_to_login">Already registred! Login Me.</string>
+    <string name="welcome">Welcome</string>
+    <string name="btn_logout">LOGOUT</string>
+    <string name="name">Fullname</string>
+</resources>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:weightSum="10"
+    android:orientation="vertical"
+    tools:context="alex.beaconapp.MainActivity">
+
+    <TextView
+        android:layout_weight="1"
+        android:id="@+id/txtMain"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:text="@string/textview_school_name" />
+    <TextView
+        android:layout_weight="1"
+        android:id="@+id/txtStudentName"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:text="@string/textview_student_name" />
+    <TextView
+        android:layout_weight="1"
+        android:id="@+id/txtSubject"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:text="@string/textview_subject_name" />
+
+    <Button
+        android:visibility="invisible"
+        android:layout_weight="1"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:text="@string/button_attend"
+        android:id="@+id/buttonAttend" />
+
+
+    <ListView
+        android:background="#cbbc9b"
+        android:id="@+id/list"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent">
+    </ListView>
+
+</LinearLayout>
