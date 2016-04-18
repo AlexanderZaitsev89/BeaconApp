@@ -5,11 +5,8 @@ package alex.beaconapp;
  */
 public class AppConfig {
 
-    //
-    public static String SHARED_PREFERENCES_ID = "id";
-    public static String SHARED_PREFERENCES_NAME = "name";
-    public static String SHARED_PREFERENCES_EMAIL = "email";
-    public static String SHARED_PREFERENCES_PASSWORD = "password";
+    // Shared preferences file name
+    public static  String PREF_NAME = "ReservationSystem";
 
     //parameters for the user info
     public static String USER_ID ="userId";
@@ -21,10 +18,13 @@ public class AppConfig {
     public static String USER_TYPE ="type";
 
     // Server user login url
-    public static String URL_LOGIN = "http://192.168.0.102/android_login_api/login.php";
+    public static String URL_LOGIN = "http://5.101.107.114:8080/api/login";
 
     // Server user register url
     public static String URL_REGISTER = "http://5.101.107.114:8080/api/register";
 
+    //Parameters that are in json object, whick we receive from server
+    public static String JSON_OBJECT_SUCCESS ="success";
+    public static String JSON_OBJECT_DATA ="data";
 
 }

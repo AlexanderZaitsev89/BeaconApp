@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     Button attendButton;
     ListView listView ;
     SharedPreferences sPref;
-
+    private SessionManager session;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,15 +43,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         attendButton=(Button)findViewById(R.id.buttonAttend);
         listView = (ListView) findViewById(R.id.list);
-        sPref = getSharedPreferences("MyPref", MODE_PRIVATE);
 
-        if(sPref.contains(AppConfig.SHARED_PREFERENCES_PASSWORD)!=true){  //in the final version here should be id for user as a check
-            // User is not registered. Take him to main register activity
-            Intent intent = new Intent(MainActivity.this,RegisterActivity.class );
+        // Session manager
+        session = new SessionManager(getApplicationContext());
+        if (!session.isLoggedIn()) {
+            // User is already logged in. Take him to main activity
+            Log.d("testlogin", "not logged in");
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
             startActivity(intent);
+            finish();
+        }else {
+            sPref=getSharedPreferences(AppConfig.PREF_NAME, MODE_PRIVATE);
+            String name = sPref.getString(AppConfig.USER_NAME, "no name");
+            String lname = sPref.getString(AppConfig.USER_LAST_NAME, "no lname");
+            String token=sPref.getString(AppConfig.USER_TOKEN,"no token");
+            Log.d("testlogin", "info"+ name+lname+token);
         }
-        String nameText = sPref.getString(AppConfig.SHARED_PREFERENCES_NAME, "No value");
-        txtName.setText("Student's name: "+nameText);
 
 
         beaconManager = new BeaconManager(getApplicationContext());

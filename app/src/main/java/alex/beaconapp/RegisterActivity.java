@@ -1,5 +1,6 @@
 package alex.beaconapp;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -63,6 +64,7 @@ public class RegisterActivity extends AppCompatActivity {
 
                 if (!name.isEmpty() && !email.isEmpty() && !password.isEmpty()&&!lastname.isEmpty()) {
                     registerUser(name,lastname, email, password,typeofuser);
+
                 } else {
                     Toast.makeText(getApplicationContext(),
                             "Please enter your details!", Toast.LENGTH_LONG)
@@ -86,9 +88,7 @@ public class RegisterActivity extends AppCompatActivity {
                 try {
                     JSONObject jObj = new JSONObject(response);
                     boolean success =  jObj.getBoolean("success");
-
                     if (success) {
-                        Log.d("testresponse", "WAS HERE");
                         // User successfully stored in database
                         JSONObject user = jObj.getJSONObject("data");
                         int id = user.getInt(AppConfig.USER_ID);
@@ -139,18 +139,7 @@ public class RegisterActivity extends AppCompatActivity {
         // Adding request to request queue
         RequestQueue requestQueue = Volley.newRequestQueue(this);
         requestQueue.add(strReq);
-
-
-        sPref = getSharedPreferences("MyPref", MODE_PRIVATE);
-        SharedPreferences.Editor ed = sPref.edit();
-        ed.putString(AppConfig.SHARED_PREFERENCES_NAME, name);
-        ed.putString(AppConfig.SHARED_PREFERENCES_EMAIL, email);
-        //ed.putString(AppConfig.SHARED_PREFERENCES_PASSWORD, password);
-        ed.commit();
         finish();
-
-
-
     }
 
 
