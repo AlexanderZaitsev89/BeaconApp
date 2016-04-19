@@ -6,9 +6,12 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Typeface;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -39,6 +42,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         txt=(TextView)findViewById(R.id.txtMain);
+        Typeface face= Typeface.createFromAsset(getAssets(), "fonts/goodfisb.ttf");
+        txt.setTypeface(face);
         txtName=(TextView)findViewById(R.id.txtStudentName);
 
         attendButton=(Button)findViewById(R.id.buttonAttend);
@@ -57,6 +62,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             String name = sPref.getString(AppConfig.USER_NAME, "no name");
             String lname = sPref.getString(AppConfig.USER_LAST_NAME, "no lname");
             String token=sPref.getString(AppConfig.USER_TOKEN,"no token");
+            txtName.setText("Student: "+name+" "+lname);
             Log.d("testlogin", "info"+ name+lname+token);
         }
 
@@ -142,5 +148,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
 
+    }
+///////////////////////////////menu/////////////////////////////////////////////
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.actionbar_menu, menu);
+        return true;
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Take appropriate action for each action item click
+        switch (item.getItemId()) {
+            case R.id.menu_logout:
+                session.setLogin(false);
+                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                startActivity(intent);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 }

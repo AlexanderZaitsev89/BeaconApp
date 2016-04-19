@@ -5,6 +5,8 @@
     <string name="textview_subject_name">Subject: not found</string>
     <string name="button_attend">Attend</string>
 
+    <string name="menu_logout">Logout</string>
+
 
     <string name="hint_email">Email</string>
     <string name="hint_password">Password</string>

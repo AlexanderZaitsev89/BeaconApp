@@ -9,11 +9,14 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     android:weightSum="10"
     android:orientation="vertical"
+    android:background="@color/bg_main"
     tools:context="alex.beaconapp.MainActivity">
 
     <TextView
+        android:textSize="22sp"
         android:layout_weight="1"
         android:id="@+id/txtMain"
+        android:gravity="center"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:text="@string/textview_school_name" />
