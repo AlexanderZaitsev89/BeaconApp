@@ -19,7 +19,6 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.estimote.sdk.Beacon;
 import com.estimote.sdk.BeaconManager;
 import com.estimote.sdk.Region;
@@ -28,7 +27,10 @@ import com.estimote.sdk.eddystone.Eddystone;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener,
+                                                                BeaconManager.MonitoringListener,
+                                                                    AdapterView.OnItemClickListener{
+    private static final String TAG = MainActivity.class.getSimpleName();
     TextView txt;
     TextView txtName;
     private BeaconManager beaconManager;
@@ -37,23 +39,41 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     ListView listView ;
     SharedPreferences sPref;
     private SessionManager session;
+    String token;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        prepareLayout();
+        checkLoginState();
+
+        beaconManager.setMonitoringListener(this);
+        attendButton.setOnClickListener(this);
+        listView.setOnItemClickListener(this);
+    }
+
+////////////////////////////////INITIAL PREPARE METHODS///////////////////////////////////////////
+    public void prepareLayout(){
         txt=(TextView)findViewById(R.id.txtMain);
         Typeface face= Typeface.createFromAsset(getAssets(), "fonts/goodfisb.ttf");
         txt.setTypeface(face);
         txtName=(TextView)findViewById(R.id.txtStudentName);
-
         attendButton=(Button)findViewById(R.id.buttonAttend);
         listView = (ListView) findViewById(R.id.list);
-
-        // Session manager
         session = new SessionManager(getApplicationContext());
+
+        beaconManager = new BeaconManager(getApplicationContext());
+        // Default values are 5s of scanning and 25s of waiting time to save CPU cycles.
+        // In order for this demo to be more responsive and immediate we lower down those values.
+        beaconManager.setBackgroundScanPeriod(TimeUnit.SECONDS.toMillis(1), 0);
+        region = new Region("rid", null, 88, null);
+    }
+    public void checkLoginState(){
         if (!session.isLoggedIn()) {
             // User is already logged in. Take him to main activity
-            Log.d("testlogin", "not logged in");
+            Log.d(TAG, "not logged in");
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
             startActivity(intent);
             finish();
@@ -61,95 +81,33 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             sPref=getSharedPreferences(AppConfig.PREF_NAME, MODE_PRIVATE);
             String name = sPref.getString(AppConfig.USER_NAME, "no name");
             String lname = sPref.getString(AppConfig.USER_LAST_NAME, "no lname");
-            String token=sPref.getString(AppConfig.USER_TOKEN,"no token");
+            token=sPref.getString(AppConfig.USER_TOKEN,"no token");
             txtName.setText("Student: "+name+" "+lname);
-            Log.d("testlogin", "info"+ name+lname+token);
+            Log.d(TAG, "info"+ name+lname+ "token"+token);
         }
-
-
-        beaconManager = new BeaconManager(getApplicationContext());
-        region = new Region("rid", null, 88, null);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
-                attendButton.setVisibility(View.VISIBLE); //To set visible
-            }
-        });
-
-        // Default values are 5s of scanning and 25s of waiting time to save CPU cycles.
-        // In order for this demo to be more responsive and immediate we lower down those values.
-        beaconManager.setBackgroundScanPeriod(TimeUnit.SECONDS.toMillis(1), 0);
-        beaconManager.setMonitoringListener(new BeaconManager.MonitoringListener() {
-            @Override
-            public void onEnteredRegion(Region region, List<Beacon> list) {
-                String[] subjects = new String[list.size()];
-                subjects[0] = "minor: " + list.get(0).getMinor();
-                Log.d("testbeacon", "enter region");
-                //  Log.d("testbeacon", "Nearby eddystones: " + list);
-                //  Log.d("testbeacon", "mac: " + list.get(0).getMacAddress());
-                //  Log.d("testbeacon", "uuid: " + list.get(0).getProximityUUID());
-                //  Log.d("testbeacon", "minor: " + list.get(0).getMinor());
-                // Log.d("testbeacon", "major " + list.get(0).getMajor());
-                ArrayAdapter<String> adapter = new ArrayAdapter<String>(getApplicationContext(),
-                        android.R.layout.simple_list_item_1, android.R.id.text1, subjects);
-                listView.setAdapter(adapter);
-
-            }
-
-            @Override
-            public void onExitedRegion(Region region) {
-                Log.d("testbeacon", "exit region");
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
-                alertDialogBuilder.setMessage("Are you leaving the classroom?");
-
-                alertDialogBuilder.setPositiveButton("yes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface arg0, int arg1) {
-                        Toast.makeText(MainActivity.this,"You clicked yes button", Toast.LENGTH_LONG).show();
-                        finish();
-                    }
-                });
-
-                alertDialogBuilder.setNegativeButton("No",new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                    }
-                });
-
-                AlertDialog alertDialog = alertDialogBuilder.create();
-                alertDialog.show();
-            }
-        });
     }
-
+///////////////////////////////CLICK  METHODS/////////////////////////////////////////////////////
     @Override
-    protected void onStart() {
-        super.onStart();
-        // Should be invoked in #onStart.
-        beaconManager.connect(new BeaconManager.ServiceReadyCallback() {
-            @Override
-            public void onServiceReady() {
-                // Beacons ranging.
-                beaconManager.startMonitoring(region);
-                Log.d("testbeacon", "Start Monitoring");
-            }
-        });
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        attendButton.setVisibility(View.VISIBLE); //To set visible
     }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        // When no longer needed. Should be invoked in #onDestroy.
-        beaconManager.disconnect();
-    }
-
     @Override
     public void onClick(View v) {
+        switch (v.getId()) {
 
+            case R.id.buttonAttend:
+                Log.d("testattend", "button was pushed");
+                ServerCommunication attendRequest=new ServerCommunication(this);
+                //attendRequest.attendClass(2,token);
+                attendRequest.attendClass(2,token);
+                break;
+
+
+            default:
+                break;
+        }
     }
-///////////////////////////////menu/////////////////////////////////////////////
+///////////////////////////////MENU ///////////////////////////////////////////////////////////////
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.actionbar_menu, menu);
@@ -168,4 +126,67 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 return super.onOptionsItemSelected(item);
         }
     }
+//////////////////////////////LIFECYLCE METHODS///////////////////////////////////////////////////
+    @Override
+    protected void onStart() {
+        super.onStart();
+        // Should be invoked in #onStart.
+        beaconManager.connect(new BeaconManager.ServiceReadyCallback() {
+            @Override
+            public void onServiceReady() {
+                // Beacons ranging.
+                beaconManager.startMonitoring(region);
+                Log.d("testbeacon", "Start Monitoring");
+            }
+        });
+    }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // When no longer needed. Should be invoked in #onDestroy.
+        beaconManager.disconnect();
+    }
+//////////////////////////////BEACON //////////////////////////////////////////////////////////////
+    @Override
+    public void onEnteredRegion(Region region, List<Beacon> list) {
+        String[] subjects = new String[list.size()];
+        subjects[0] = "minor: " + list.get(0).getMinor();
+        Log.d("testbeacon", "enter region");
+        //  Log.d("testbeacon", "Nearby eddystones: " + list);
+        //  Log.d("testbeacon", "mac: " + list.get(0).getMacAddress());
+        //  Log.d("testbeacon", "uuid: " + list.get(0).getProximityUUID());
+        //  Log.d("testbeacon", "minor: " + list.get(0).getMinor());
+        // Log.d("testbeacon", "major " + list.get(0).getMajor());
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getApplicationContext(),
+                android.R.layout.simple_list_item_1, android.R.id.text1, subjects);
+        listView.setAdapter(adapter);
+    }
+    @Override
+    public void onExitedRegion(Region region) {
+        Log.d("testbeacon", "exit region");
+        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(MainActivity.this);
+        alertDialogBuilder.setMessage("Are you leaving the classroom?");
+
+        alertDialogBuilder.setPositiveButton("yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface arg0, int arg1) {
+                Toast.makeText(MainActivity.this,"You clicked yes button", Toast.LENGTH_LONG).show();
+                ServerCommunication leave=new ServerCommunication(getApplicationContext());
+                //leave.leaveClass(2);
+                finish();
+            }
+        });
+
+        alertDialogBuilder.setNegativeButton("No",new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+            }
+        });
+
+        AlertDialog alertDialog = alertDialogBuilder.create();
+        alertDialog.show();
+    }
+
+
 }

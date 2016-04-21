@@ -22,8 +22,8 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.Map;
 
-public class LoginActivity extends AppCompatActivity {
-    private static final String TAG = RegisterActivity.class.getSimpleName();
+public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
+    private static final String TAG = LoginActivity.class.getSimpleName();
     private Button btnLogin;
     private Button btnLinkToRegister;
     private EditText inputEmail;
@@ -51,37 +51,8 @@ public class LoginActivity extends AppCompatActivity {
             finish();
         }
 
-        // Login button Click Event
-        btnLogin.setOnClickListener(new View.OnClickListener() {
-
-            public void onClick(View view) {
-                String email = inputEmail.getText().toString().trim();
-                String password = inputPassword.getText().toString().trim();
-
-                // Check for empty data in the form
-                if (!email.isEmpty() && !password.isEmpty()) {
-                    // login user
-                    checkLogin(email, password);
-                    finish();
-
-                } else {
-                    // Prompt user to enter credentials
-                    Toast.makeText(getApplicationContext(),
-                            "Please enter the credentials!", Toast.LENGTH_LONG).show();
-                }
-            }
-
-        });
-
-        // Link to Register Screen
-        btnLinkToRegister.setOnClickListener(new View.OnClickListener() {
-
-            public void onClick(View view) {
-                Intent i = new Intent(getApplicationContext(),RegisterActivity.class);
-                startActivity(i);
-
-            }
-        });
+        btnLogin.setOnClickListener(this);
+        btnLinkToRegister.setOnClickListener(this);
 
     }
     private void checkLogin(final String email, final String password) {
@@ -159,5 +130,34 @@ public class LoginActivity extends AppCompatActivity {
     }
 
 
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
 
+            case R.id.btnLogin:
+                String email = inputEmail.getText().toString().trim();
+                String password = inputPassword.getText().toString().trim();
+
+                // Check for empty data in the form
+                if (!email.isEmpty() && !password.isEmpty()) {
+                    // login user
+                    checkLogin(email, password);
+                    finish();
+
+                } else {
+                    // Prompt user to enter credentials
+                    Toast.makeText(getApplicationContext(),
+                            "Please enter the credentials!", Toast.LENGTH_LONG).show();
+                }
+                break;
+            case R.id.btnLinkToRegisterScreen:
+                // Link to Register Screen
+                Intent i = new Intent(getApplicationContext(),RegisterActivity.class);
+                startActivity(i);
+                break;
+
+            default:
+                break;
+        }
+    }
 }

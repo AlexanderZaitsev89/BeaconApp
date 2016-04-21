@@ -17,11 +17,20 @@ public class AppConfig {
     public static String USER_PASSWORD ="password";
     public static String USER_TYPE ="type";
 
+    //Other parameters
+    public static String CLASS_ID ="classId";
+
     // Server user login url
     public static String URL_LOGIN = "http://5.101.107.114:8080/api/login";
 
     // Server user register url
     public static String URL_REGISTER = "http://5.101.107.114:8080/api/register";
+
+    // Server user=student attend class url
+    public static String URL_ATTEND_CLASS = "http://5.101.107.114:8080/api/attendClass";
+
+    // Server user=student leave class url
+    public static String URL_LEAVE_CLASS = "http://5.101.107.114:8080/api/leaveClass";
 
     //Parameters that are in json object, whick we receive from server
     public static String JSON_OBJECT_SUCCESS ="success";
