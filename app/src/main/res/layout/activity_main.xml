@@ -21,25 +21,22 @@
         android:layout_height="0dp"
         android:text="@string/textview_school_name" />
     <TextView
-        android:layout_weight="1"
+        android:textSize="19sp"
+        android:layout_weight="2"
         android:id="@+id/txtStudentName"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:text="@string/textview_student_name" />
     <TextView
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
         android:layout_weight="1"
         android:id="@+id/txtSubject"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:text="@string/textview_subject_name" />
+        android:text="@string/textview_instruction" />
 
-    <Button
-        android:visibility="invisible"
-        android:layout_weight="1"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:text="@string/button_attend"
-        android:id="@+id/buttonAttend" />
+
 
 
     <ListView
@@ -48,5 +45,22 @@
         android:layout_height="wrap_content"
         android:layout_width="match_parent">
     </ListView>
+    <ListView
+
+        android:background="#cbbc9b"
+        android:id="@+id/list2"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent">
+    </ListView>
+    <Button
+        android:layout_marginTop="20dp"
+        android:visibility="invisible"
+        android:layout_weight="1"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:text="@string/button_attend"
+        android:id="@+id/buttonAttend" />
+
+
 
 </LinearLayout>

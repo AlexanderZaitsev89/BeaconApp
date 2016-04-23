@@ -55,6 +55,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         btnLinkToRegister.setOnClickListener(this);
 
     }
+
+
     private void checkLogin(final String email, final String password) {
 
         StringRequest strReq = new StringRequest(Request.Method.POST,

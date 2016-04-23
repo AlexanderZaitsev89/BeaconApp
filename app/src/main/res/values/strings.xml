@@ -2,8 +2,8 @@
     <string name="app_name">BeaconApp</string>
     <string name="textview_school_name">Metropolia UAS</string>
     <string name="textview_student_name">Student: not registered</string>
-    <string name="textview_subject_name">Subject: not found</string>
-    <string name="button_attend">Attend</string>
+    <string name="textview_instruction">Choose the classroom that your are currently in: </string>
+    <string name="button_attend">ENTER</string>
 
     <string name="menu_logout">Logout</string>
 

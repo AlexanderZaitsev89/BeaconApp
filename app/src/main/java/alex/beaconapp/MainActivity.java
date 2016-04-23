@@ -22,24 +22,25 @@ import android.widget.Toast;
 import com.estimote.sdk.Beacon;
 import com.estimote.sdk.BeaconManager;
 import com.estimote.sdk.Region;
-import com.estimote.sdk.eddystone.Eddystone;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener,
-                                                                BeaconManager.MonitoringListener,
-                                                                    AdapterView.OnItemClickListener{
+                                                                BeaconManager.MonitoringListener{
     private static final String TAG = MainActivity.class.getSimpleName();
-    TextView txt;
-    TextView txtName;
+    TextView txt,txtName,txtDescription;
+    String[] classroms,subjects;
+    String token;
+    int chosenCourse;
+    Button attendButton;
+    ListView listViewClassrooms, listViewCourses;
+    SharedPreferences sPref;
+
     private BeaconManager beaconManager;
     Region region;
-    Button attendButton;
-    ListView listView ;
-    SharedPreferences sPref;
+
     private SessionManager session;
-    String token;
 
 
     @Override
@@ -48,20 +49,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
         prepareLayout();
         checkLoginState();
+        settingListenersOnListViews();
 
-        beaconManager.setMonitoringListener(this);
-        attendButton.setOnClickListener(this);
-        listView.setOnItemClickListener(this);
+        //////for testing
+        subjects=new String[4];
+        subjects[0]="Android course";
+        subjects[1]="Web programming";
+        subjects[2]="C programming";
+        subjects[3]="Java programming";
     }
 
 ////////////////////////////////INITIAL PREPARE METHODS///////////////////////////////////////////
     public void prepareLayout(){
+        Typeface customFont= Typeface.createFromAsset(getAssets(), "fonts/goodfisb.ttf");
+
         txt=(TextView)findViewById(R.id.txtMain);
-        Typeface face= Typeface.createFromAsset(getAssets(), "fonts/goodfisb.ttf");
-        txt.setTypeface(face);
         txtName=(TextView)findViewById(R.id.txtStudentName);
+        txtDescription=(TextView)findViewById(R.id.txtSubject);
+        txt.setTypeface(customFont);
+        txtName.setTypeface(customFont);
+        txtDescription.setTypeface(customFont);
+
         attendButton=(Button)findViewById(R.id.buttonAttend);
-        listView = (ListView) findViewById(R.id.list);
+        listViewClassrooms = (ListView) findViewById(R.id.list);
+        listViewCourses = (ListView) findViewById(R.id.list2);
         session = new SessionManager(getApplicationContext());
 
         beaconManager = new BeaconManager(getApplicationContext());
@@ -82,26 +93,64 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             String name = sPref.getString(AppConfig.USER_NAME, "no name");
             String lname = sPref.getString(AppConfig.USER_LAST_NAME, "no lname");
             token=sPref.getString(AppConfig.USER_TOKEN,"no token");
-            txtName.setText("Student: "+name+" "+lname);
+            txtName.setText("Dear Sir/Madam, "+name+" "+lname+". We are pleased to welcome you " +
+                    "in our humble alma mater of wisdom and possibilities.");
             Log.d(TAG, "info"+ name+lname+ "token"+token);
         }
     }
+    public void settingListenersOnListViews(){
+        beaconManager.setMonitoringListener(this);
+        attendButton.setOnClickListener(this);
+
+        listViewClassrooms.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                attendButton.setVisibility(View.VISIBLE); //To set visible
+            }
+        });
+
+        listViewCourses.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                txtDescription.setText("You have selected: " + subjects[position] + "course. Click attend button to start.");
+                chosenCourse = position;
+            }
+        });
+    }
+
 ///////////////////////////////CLICK  METHODS/////////////////////////////////////////////////////
     @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        attendButton.setVisibility(View.VISIBLE); //To set visible
-    }
-    @Override
     public void onClick(View v) {
-        switch (v.getId()) {
+        Button b = (Button)v;
+        String buttonText = b.getText().toString();
+        Log.d("testattend", "string " + buttonText);
+        switch (buttonText) {
 
-            case R.id.buttonAttend:
-                Log.d("testattend", "button was pushed");
-                ServerCommunication attendRequest=new ServerCommunication(this);
-                //attendRequest.attendClass(2,token);
-                attendRequest.attendClass(2,token);
+            case "ENTER":
+                //when enter is pressed a list of subjects that connected with this class is showed
+                showListView(subjects,2);
+                txtDescription.setText("Choose subject your want to attend");
+                ((Button) v).setText("ATTEND");
+                listViewClassrooms.setVisibility(View.GONE);
+                listViewCourses.setVisibility(View.VISIBLE);
                 break;
-
+            case "ATTEND":
+                //when attend is pressed an attend request is send to server
+                ((Button) v).setText("LEAVE");
+                ServerCommunication attendRequest=new ServerCommunication(this);
+                attendRequest.attendClass(2, token);
+                txtDescription.setText("You are attending course: "+ subjects[chosenCourse]);
+                listViewCourses.setVisibility(View.GONE);
+                break;
+            case "LEAVE":
+                //when leave is pressed a leave request is send to server
+                ServerCommunication leaveRequest=new ServerCommunication(this);
+                leaveRequest.leaveClass(2, token);
+                listViewClassrooms.setVisibility(View.VISIBLE);
+                ((Button) v).setText("ENTER");
+                txtDescription.setText("Choose the classroom that your are currently in: ");
+                showListView(classroms,1);
+                break;
 
             default:
                 break;
@@ -149,17 +198,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //////////////////////////////BEACON //////////////////////////////////////////////////////////////
     @Override
     public void onEnteredRegion(Region region, List<Beacon> list) {
-        String[] subjects = new String[list.size()];
-        subjects[0] = "minor: " + list.get(0).getMinor();
-        Log.d("testbeacon", "enter region");
+        classroms= new String[list.size()];
+        classroms[0] = "Classrom #: " + list.get(0).getMinor();
+        Log.d("enter region", "enter region");
         //  Log.d("testbeacon", "Nearby eddystones: " + list);
         //  Log.d("testbeacon", "mac: " + list.get(0).getMacAddress());
         //  Log.d("testbeacon", "uuid: " + list.get(0).getProximityUUID());
         //  Log.d("testbeacon", "minor: " + list.get(0).getMinor());
         // Log.d("testbeacon", "major " + list.get(0).getMajor());
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getApplicationContext(),
-                android.R.layout.simple_list_item_1, android.R.id.text1, subjects);
-        listView.setAdapter(adapter);
+        showListView(classroms,1);
     }
     @Override
     public void onExitedRegion(Region region) {
@@ -187,6 +234,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         AlertDialog alertDialog = alertDialogBuilder.create();
         alertDialog.show();
     }
-
-
+///////////////////////////////////OTHER STUFF //////////////////////////////////////////////////////
+    public void showListView(String [] dataToShow,int listViewNumber){
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getApplicationContext(),
+                android.R.layout.simple_list_item_1, android.R.id.text1, dataToShow);
+        if(listViewNumber==1) {
+            listViewClassrooms.setAdapter(adapter);
+        }
+        if(listViewNumber==2) {
+            listViewCourses.setAdapter(adapter);
+        }
+    }
 }
