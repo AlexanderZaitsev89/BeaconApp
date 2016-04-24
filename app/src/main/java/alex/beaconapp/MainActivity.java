@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -16,6 +17,8 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -36,6 +39,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     Button attendButton;
     ListView listViewClassrooms, listViewCourses;
     SharedPreferences sPref;
+    LinearLayout header;
 
     private BeaconManager beaconManager;
     Region region;
@@ -61,6 +65,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 ////////////////////////////////INITIAL PREPARE METHODS///////////////////////////////////////////
     public void prepareLayout(){
+
+        header=(LinearLayout)findViewById(R.id.header);
+        //to make design more responsive: calculte header height for each screen
+        header.getLayoutParams().height= calculateHeaderHeight();
+
         Typeface customFont= Typeface.createFromAsset(getAssets(), "fonts/goodfisb.ttf");
 
         txt=(TextView)findViewById(R.id.txtMain);
@@ -80,6 +89,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // In order for this demo to be more responsive and immediate we lower down those values.
         beaconManager.setBackgroundScanPeriod(TimeUnit.SECONDS.toMillis(1), 0);
         region = new Region("rid", null, 88, null);
+    }
+    public int calculateHeaderHeight(){
+        DisplayMetrics metrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        Log.d("testmetrics", "metricks " + " h= " + metrics.heightPixels + " w= " + metrics.widthPixels);
+        float height=(metrics.heightPixels/100)*30;
+        Log.d("testmetrics", "new height " +height);
+        return Math.round(height);
     }
     public void checkLoginState(){
         if (!session.isLoggedIn()) {
@@ -123,7 +140,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         Button b = (Button)v;
         String buttonText = b.getText().toString();
-        Log.d("testattend", "string " + buttonText);
         switch (buttonText) {
 
             case "ENTER":
