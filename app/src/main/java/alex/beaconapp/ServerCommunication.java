@@ -84,6 +84,7 @@ public class ServerCommunication {
         requestQueue.add(strReq);
         return success;
     }
+
     protected boolean leaveClass(final int classId,final String token) {
 
         Log.d(TAG, "the  leave request was sent");
@@ -122,6 +123,63 @@ public class ServerCommunication {
                 // Posting params to register url
                 Map<String, String> params = new HashMap<String, String>();
                 params.put(AppConfig.CLASS_ID, String.valueOf(classId));
+                return params;
+            }
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<String, String>();
+                Log.d(TAG, "TOKEN:"+token);
+                headers.put("Authorization",token);
+                return headers;
+            }
+
+        };
+
+        // Adding request to request queue
+        RequestQueue requestQueue = Volley.newRequestQueue(context);
+        requestQueue.add(strReq);
+        return success;
+    }
+
+    protected boolean getCurentClassByBeacon(final String token) {
+
+        Log.d(TAG, "the  getCurentClass request was sent");
+        StringRequest strReq = new StringRequest(Request.Method.POST,
+                AppConfig.URL_GET_CURRENT_CLASS_BY_BEACON, new Response.Listener<String>() {
+
+            @Override
+            public void onResponse(String response) {
+
+                try {
+                    JSONObject jObj = new JSONObject(response);
+                    success =  jObj.getBoolean("success");
+                    if (success) {
+                        Log.d(TAG, "getCurentClass request was successful");
+                    } else {
+                        // Error occurred in registration.
+                        Log.d(TAG, "getCurentClass request failed");
+
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Log.d(TAG, "PROBLEM OCCURED");
+                }
+            }
+        }, new Response.ErrorListener() {
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e(TAG, "Registration Error: " + error.getMessage());
+
+            }
+        }) {
+
+            @Override
+            protected Map<String, String> getParams() {
+                // Posting params to register url
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("beacons", String.valueOf(311));
+                params.put("beacons", String.valueOf(0));
                 return params;
             }
             @Override

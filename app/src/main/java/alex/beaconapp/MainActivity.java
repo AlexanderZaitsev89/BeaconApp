@@ -88,7 +88,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // Default values are 5s of scanning and 25s of waiting time to save CPU cycles.
         // In order for this demo to be more responsive and immediate we lower down those values.
         beaconManager.setBackgroundScanPeriod(TimeUnit.SECONDS.toMillis(1), 0);
-        region = new Region("rid", null, 88, null);
+        region = new Region("rid", null, 1808, null);
     }
     public int calculateHeaderHeight(){
         DisplayMetrics metrics = new DisplayMetrics();
@@ -147,6 +147,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 showListView(subjects,2);
                 txtDescription.setText("Choose subject your want to attend");
                 ((Button) v).setText("ATTEND");
+                ServerCommunication getClassByBeacon=new ServerCommunication(this);
+                getClassByBeacon.getCurentClassByBeacon(token);
                 listViewClassrooms.setVisibility(View.GONE);
                 listViewCourses.setVisibility(View.VISIBLE);
                 break;
@@ -215,9 +217,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onEnteredRegion(Region region, List<Beacon> list) {
         classroms= new String[list.size()];
-        classroms[0] = "Classrom #: " + list.get(0).getMinor();
+        for(int i=0;i<list.size();i++){
+            classroms[i] = "Classrom #: " + list.get(i).getMinor();
+        }
+
         Log.d("enter region", "enter region");
-        //  Log.d("testbeacon", "Nearby eddystones: " + list);
+        //  Log.d("testUUID", "Nearby eddystones: " + list.get(0).getProximityUUID());
         //  Log.d("testbeacon", "mac: " + list.get(0).getMacAddress());
         //  Log.d("testbeacon", "uuid: " + list.get(0).getProximityUUID());
         //  Log.d("testbeacon", "minor: " + list.get(0).getMinor());

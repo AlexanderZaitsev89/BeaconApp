@@ -36,4 +36,6 @@ public class AppConfig {
     public static String JSON_OBJECT_SUCCESS ="success";
     public static String JSON_OBJECT_DATA ="data";
 
+    // Server user=student leave class url
+    public static String URL_GET_CURRENT_CLASS_BY_BEACON = "http://5.101.107.114:8080/api/getClassByBeacon";
 }

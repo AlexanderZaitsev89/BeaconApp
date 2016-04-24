@@ -21,7 +21,6 @@ public class SessionManager {
     int PRIVATE_MODE = 0;
 
 
-
     private static final String KEY_IS_LOGGEDIN = "isLoggedIn";
 
     public SessionManager(Context context) {

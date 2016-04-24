@@ -38,13 +38,20 @@ public class RegisterActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
+        prepareLayout();
+        setListerners();
+
+
+
+
+    }
+    private void prepareLayout(){
         inputName = (EditText) findViewById(R.id.name);
         inputLastName = (EditText) findViewById(R.id.lastName);
         inputEmail = (EditText) findViewById(R.id.email);
         inputPassword = (EditText) findViewById(R.id.password);
         btnRegister = (Button) findViewById(R.id.btnRegister);
         spinner = (Spinner) findViewById(R.id.type_spinner);
-
         // Create an ArrayAdapter using the string array and a default spinner layout
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                 R.array.types_spinner_array, R.layout.spinner_item);
@@ -53,6 +60,9 @@ public class RegisterActivity extends AppCompatActivity {
         // Apply the adapter to the spinner
         spinner.setAdapter(adapter);
 
+    }
+
+    private void setListerners(){
         // Register Button Click event
         btnRegister.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
@@ -72,8 +82,8 @@ public class RegisterActivity extends AppCompatActivity {
                 }
             }
         });
-    }
 
+    }
 
 
     private void registerUser(final String name,final String lastname, final String email,
