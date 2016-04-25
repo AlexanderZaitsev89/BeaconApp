@@ -6,6 +6,8 @@
     <string name="button_attend">ENTER</string>
 
     <string name="menu_logout">Logout</string>
+    <string name="menu_show_my_enrolled_classes">My courses</string>
+    <string name="menu_show_user_attendance">My attendance</string>
 
 
     <string name="hint_email">Email</string>

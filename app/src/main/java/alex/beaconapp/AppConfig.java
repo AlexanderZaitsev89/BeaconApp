@@ -38,4 +38,7 @@ public class AppConfig {
 
     // Server user=student leave class url
     public static String URL_GET_CURRENT_CLASS_BY_BEACON = "http://5.101.107.114:8080/api/getClassByBeacon";
+
+    // Server user=student leave class url
+    public static String URL_SHOW_MY_ENROLLED_COURSES = "http://5.101.107.114:8080/api/getMyClass ";
 }

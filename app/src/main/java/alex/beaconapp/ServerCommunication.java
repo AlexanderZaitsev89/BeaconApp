@@ -11,6 +11,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -25,6 +26,7 @@ public class ServerCommunication {
     private static String TAG = ServerCommunication.class.getSimpleName();
     private Context context;
     boolean success;
+
 
     public ServerCommunication(Context context){
         this.context=context;
@@ -149,11 +151,13 @@ public class ServerCommunication {
 
             @Override
             public void onResponse(String response) {
-
+                Log.d(TAG,"response: "+response);
                 try {
                     JSONObject jObj = new JSONObject(response);
                     success =  jObj.getBoolean("success");
+
                     if (success) {
+
                         Log.d(TAG, "getCurentClass request was successful");
                     } else {
                         // Error occurred in registration.
@@ -196,5 +200,78 @@ public class ServerCommunication {
         RequestQueue requestQueue = Volley.newRequestQueue(context);
         requestQueue.add(strReq);
         return success;
+    }
+
+    protected void showMyEnrolledCourses(final String token, final VolleyCallback callback) {
+
+        Log.d(TAG, "the  getCurentClass request was sent");
+        StringRequest strReq = new StringRequest(Request.Method.POST,
+                AppConfig.URL_SHOW_MY_ENROLLED_COURSES, new Response.Listener<String>() {
+
+            @Override
+            public void onResponse(String response) {
+                //Log.d(TAG,"response: "+response);
+                try {
+                    JSONObject jObj = new JSONObject(response);
+                    success =  jObj.getBoolean("success");
+
+                    if (success) {
+                        //JSONObject userCourses = jObj.getJSONObject("data");
+                        JSONArray userCourses = jObj.getJSONArray("data");
+                        String [] arrayOfUsercourses=new String[userCourses.length()];
+                        for(int i=0;i<userCourses.length();i++){
+                            JSONObject course = userCourses.getJSONObject(i);
+                            arrayOfUsercourses[i]=course.getString("courseName");
+                            Log.d(TAG, "course "+i + arrayOfUsercourses[i]);
+                        }
+                        callback.onSuccess(arrayOfUsercourses);
+                        Log.d(TAG, "getMyClass  request was successful");
+                    } else {
+                        // Error occurred in registration.
+                        Log.d(TAG, "getMyClass  request failed");
+
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Log.d(TAG, "PROBLEM OCCURED");
+                }
+            }
+        }, new Response.ErrorListener() {
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e(TAG, "getMyClass  Error: " + error.getMessage());
+
+            }
+        }) {
+
+            @Override
+            protected Map<String, String> getParams() {
+                // Posting params to register url
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("page", String.valueOf(1));
+
+                return params;
+            }
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<String, String>();
+                Log.d(TAG, "TOKEN:"+token);
+                headers.put("Authorization",token);
+                return headers;
+            }
+
+        };
+
+        // Adding request to request queue
+        RequestQueue requestQueue = Volley.newRequestQueue(context);
+        requestQueue.add(strReq);
+        //Log.d(TAG, "AGain" + arrayOfUsercourses.toString());
+
+    }
+
+
+    public interface VolleyCallback{
+        void onSuccess(String [] result);
     }
 }

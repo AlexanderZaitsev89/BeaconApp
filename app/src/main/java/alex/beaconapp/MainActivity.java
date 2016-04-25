@@ -31,7 +31,7 @@ import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener,
                                                                 BeaconManager.MonitoringListener{
-    private static final String TAG = MainActivity.class.getSimpleName();
+    private static final String TAG ="mainptest";
     TextView txt,txtName,txtDescription;
     String[] classroms,subjects;
     String token;
@@ -188,6 +188,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 session.setLogin(false);
                 Intent intent = new Intent(MainActivity.this, LoginActivity.class);
                 startActivity(intent);
+                return true;
+            case R.id.menu_my_enrolled_courses:
+                ServerCommunication myCourses=new ServerCommunication(this);
+               myCourses.showMyEnrolledCourses(token,new ServerCommunication.VolleyCallback(){
+                   @Override
+                   public void onSuccess(String[] result){
+                       Log.d("servercomm", String.valueOf(result.length));
+                   }
+               });
+
+                //String[] test= new String[4];
+
+               // Log.d("servercomm", String.valueOf(size));
+                //showListView(courses,1);
+
+                return true;
+            case R.id.menu_user_attendance:
+                ServerCommunication attendance=new ServerCommunication(this);
+               // attendance.showMyEnrolledCourses(token);// to be changed
+
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
