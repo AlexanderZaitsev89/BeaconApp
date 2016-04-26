@@ -151,7 +151,7 @@ public class ServerCommunication {
 
             @Override
             public void onResponse(String response) {
-                Log.d(TAG,"response: "+response);
+                Log.d(TAG,"fuck response: "+response);
                 try {
                     JSONObject jObj = new JSONObject(response);
                     success =  jObj.getBoolean("success");
@@ -182,8 +182,9 @@ public class ServerCommunication {
             protected Map<String, String> getParams() {
                 // Posting params to register url
                 Map<String, String> params = new HashMap<String, String>();
-                params.put("beacons", String.valueOf(311));
-                params.put("beacons", String.valueOf(0));
+
+                params.put("beacons", "311");
+                params.put("beacons", "1");
                 return params;
             }
             @Override

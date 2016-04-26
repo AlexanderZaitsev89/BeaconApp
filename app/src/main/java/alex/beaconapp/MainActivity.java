@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     String token;
     int chosenCourse;
     Button attendButton;
-    ListView listViewClassrooms, listViewCourses;
+    ListView listViewClassrooms, listViewCourses,userEnrolledCourses;
     SharedPreferences sPref;
     LinearLayout header;
 
@@ -82,6 +82,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         attendButton=(Button)findViewById(R.id.buttonAttend);
         listViewClassrooms = (ListView) findViewById(R.id.list);
         listViewCourses = (ListView) findViewById(R.id.list2);
+        userEnrolledCourses = (ListView) findViewById(R.id.list);
         session = new SessionManager(getApplicationContext());
 
         beaconManager = new BeaconManager(getApplicationContext());
@@ -144,32 +145,34 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             case "ENTER":
                 //when enter is pressed a list of subjects that connected with this class is showed
-                showListView(subjects,2);
+                showListView(subjects, 2);
                 txtDescription.setText("Choose subject your want to attend");
                 ((Button) v).setText("ATTEND");
                 ServerCommunication getClassByBeacon=new ServerCommunication(this);
                 getClassByBeacon.getCurentClassByBeacon(token);
-                listViewClassrooms.setVisibility(View.GONE);
-                listViewCourses.setVisibility(View.VISIBLE);
                 break;
             case "ATTEND":
                 //when attend is pressed an attend request is send to server
                 ((Button) v).setText("LEAVE");
                 ServerCommunication attendRequest=new ServerCommunication(this);
                 attendRequest.attendClass(2, token);
-                txtDescription.setText("You are attending course: "+ subjects[chosenCourse]);
+                txtDescription.setText("You are attending course: " + subjects[chosenCourse]);
                 listViewCourses.setVisibility(View.GONE);
                 break;
             case "LEAVE":
                 //when leave is pressed a leave request is send to server
                 ServerCommunication leaveRequest=new ServerCommunication(this);
                 leaveRequest.leaveClass(2, token);
-                listViewClassrooms.setVisibility(View.VISIBLE);
+                ((Button) v).setText("ENTER");
+                txtDescription.setText("Choose the classroom that your are currently in: ");
+                showListView(classroms, 1);
+                break;
+            case "BACK":
+                //when leave is pressed a leave request is send to server
                 ((Button) v).setText("ENTER");
                 txtDescription.setText("Choose the classroom that your are currently in: ");
                 showListView(classroms,1);
                 break;
-
             default:
                 break;
         }
@@ -191,18 +194,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 return true;
             case R.id.menu_my_enrolled_courses:
                 ServerCommunication myCourses=new ServerCommunication(this);
-               myCourses.showMyEnrolledCourses(token,new ServerCommunication.VolleyCallback(){
+               myCourses.showMyEnrolledCourses(token, new ServerCommunication.VolleyCallback() {
                    @Override
-                   public void onSuccess(String[] result){
+                   public void onSuccess(String[] result) {
                        Log.d("servercomm", String.valueOf(result.length));
+                       showListView(result, 3);
+                       attendButton.setVisibility(View.VISIBLE);
+                       attendButton.setText("BACK");
                    }
                });
-
-                //String[] test= new String[4];
-
-               // Log.d("servercomm", String.valueOf(size));
-                //showListView(courses,1);
-
                 return true;
             case R.id.menu_user_attendance:
                 ServerCommunication attendance=new ServerCommunication(this);
@@ -247,7 +247,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //  Log.d("testbeacon", "uuid: " + list.get(0).getProximityUUID());
         //  Log.d("testbeacon", "minor: " + list.get(0).getMinor());
         // Log.d("testbeacon", "major " + list.get(0).getMajor());
-        showListView(classroms,1);
+        showListView(classroms, 1);
     }
     @Override
     public void onExitedRegion(Region region) {
@@ -279,11 +279,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void showListView(String [] dataToShow,int listViewNumber){
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(getApplicationContext(),
                 android.R.layout.simple_list_item_1, android.R.id.text1, dataToShow);
+        listViewCourses.setVisibility(View.GONE);
+        listViewClassrooms.setVisibility(View.GONE);
         if(listViewNumber==1) {
+
             listViewClassrooms.setAdapter(adapter);
+            listViewClassrooms.setVisibility(View.VISIBLE);
         }
         if(listViewNumber==2) {
+
             listViewCourses.setAdapter(adapter);
+            listViewCourses.setVisibility(View.VISIBLE);
+        }
+        if(listViewNumber==3) {
+
+           userEnrolledCourses.setAdapter(adapter);
+            userEnrolledCourses.setVisibility(View.VISIBLE);
         }
     }
 }
