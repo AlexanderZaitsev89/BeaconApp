@@ -35,7 +35,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     TextView txt,txtName,txtDescription;
     String[] classroms,subjects;
     String token;
-    int chosenCourse;
+    int chosenCourse,chosenBeaconCode;
     Button attendButton;
     ListView listViewClassrooms, listViewCourses,userEnrolledCourses;
     SharedPreferences sPref;
@@ -55,12 +55,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         checkLoginState();
         settingListenersOnListViews();
 
-        //////for testing
-        subjects=new String[4];
-        subjects[0]="Android course";
-        subjects[1]="Web programming";
-        subjects[2]="C programming";
-        subjects[3]="Java programming";
     }
 
 ////////////////////////////////INITIAL PREPARE METHODS///////////////////////////////////////////
@@ -144,25 +138,37 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         switch (buttonText) {
 
             case "ENTER":
+                subjects=new String[1];
+                subjects[0]="No classes available";
                 //when enter is pressed a list of subjects that connected with this class is showed
-                showListView(subjects, 2);
+
                 txtDescription.setText("Choose subject your want to attend");
                 ((Button) v).setText("ATTEND");
                 ServerCommunication getClassByBeacon=new ServerCommunication(this);
-                getClassByBeacon.getCurentClassByBeacon(token);
+                getClassByBeacon.getCurentClassByBeacon(token, new ServerCommunication.VolleyCallbackReturnurrentClass() {
+                    @Override
+                    public void onSuccess(String currntClass) {
+                        Log.d("servercomm", currntClass);
+                        if (currntClass.length() > 0) {
+                            subjects[0] = currntClass;
+                        }
+                        showListView(subjects, 2);
+                    }
+                });
+
                 break;
             case "ATTEND":
                 //when attend is pressed an attend request is send to server
                 ((Button) v).setText("LEAVE");
                 ServerCommunication attendRequest=new ServerCommunication(this);
-                attendRequest.attendClass(2, token);
+                attendRequest.attendClass(4, token);
                 txtDescription.setText("You are attending course: " + subjects[chosenCourse]);
                 listViewCourses.setVisibility(View.GONE);
                 break;
             case "LEAVE":
                 //when leave is pressed a leave request is send to server
                 ServerCommunication leaveRequest=new ServerCommunication(this);
-                leaveRequest.leaveClass(2, token);
+                leaveRequest.leaveClass(4, token);
                 ((Button) v).setText("ENTER");
                 txtDescription.setText("Choose the classroom that your are currently in: ");
                 showListView(classroms, 1);
@@ -171,7 +177,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 //when leave is pressed a leave request is send to server
                 ((Button) v).setText("ENTER");
                 txtDescription.setText("Choose the classroom that your are currently in: ");
-                showListView(classroms,1);
+                userEnrolledCourses.setVisibility(View.GONE);
+                if(classroms!=null) {
+                    showListView(classroms, 1);
+                }
+
                 break;
             default:
                 break;
@@ -197,16 +207,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                myCourses.showMyEnrolledCourses(token, new ServerCommunication.VolleyCallback() {
                    @Override
                    public void onSuccess(String[] result) {
-                       Log.d("servercomm", String.valueOf(result.length));
-                       showListView(result, 3);
-                       attendButton.setVisibility(View.VISIBLE);
-                       attendButton.setText("BACK");
+                       if(result!=null) {
+                           Log.d("servercomm", String.valueOf(result.length));
+                           showListView(result, 3);
+                           attendButton.setVisibility(View.VISIBLE);
+                           attendButton.setText("BACK");
+                       }
                    }
                });
                 return true;
             case R.id.menu_user_attendance:
                 ServerCommunication attendance=new ServerCommunication(this);
-               // attendance.showMyEnrolledCourses(token);// to be changed
+               attendance.showMyAttendences(token, new ServerCommunication.VolleyCallbackAttendences() {
+                   @Override
+                   public void onSuccess(String[] resultNameofClasses, int[] resultDuration) {
+                       if(resultNameofClasses!=null) {
+                           Log.d("servercomm", String.valueOf(resultNameofClasses.length));
+                           showListView(resultNameofClasses, 3);
+                           attendButton.setVisibility(View.VISIBLE);
+                           attendButton.setText("BACK");
+                       }
+                   }
+               });
 
                 return true;
             default:

@@ -143,7 +143,7 @@ public class ServerCommunication {
         return success;
     }
 
-    protected boolean getCurentClassByBeacon(final String token) {
+    protected void getCurentClassByBeacon(final String token,final VolleyCallbackReturnurrentClass callback) {
 
         Log.d(TAG, "the  getCurentClass request was sent");
         StringRequest strReq = new StringRequest(Request.Method.POST,
@@ -157,7 +157,11 @@ public class ServerCommunication {
                     success =  jObj.getBoolean("success");
 
                     if (success) {
+                        JSONArray data = jObj.getJSONArray("data");
+                        JSONObject dataClass=data.getJSONObject(0);
 
+                        String choesnClass=dataClass.getString("courseName");
+                        callback.onSuccess(choesnClass);
                         Log.d(TAG, "getCurentClass request was successful");
                     } else {
                         // Error occurred in registration.
@@ -184,7 +188,7 @@ public class ServerCommunication {
                 Map<String, String> params = new HashMap<String, String>();
 
                 params.put("beacons", "311");
-                params.put("beacons", "1");
+                //params.put("beacons", "0");
                 return params;
             }
             @Override
@@ -200,7 +204,7 @@ public class ServerCommunication {
         // Adding request to request queue
         RequestQueue requestQueue = Volley.newRequestQueue(context);
         requestQueue.add(strReq);
-        return success;
+
     }
 
     protected void showMyEnrolledCourses(final String token, final VolleyCallback callback) {
@@ -222,7 +226,7 @@ public class ServerCommunication {
                         String [] arrayOfUsercourses=new String[userCourses.length()];
                         for(int i=0;i<userCourses.length();i++){
                             JSONObject course = userCourses.getJSONObject(i);
-                            arrayOfUsercourses[i]=course.getString("courseName");
+                            arrayOfUsercourses[i]=course.getString("name");
                             Log.d(TAG, "course "+i + arrayOfUsercourses[i]);
                         }
                         callback.onSuccess(arrayOfUsercourses);
@@ -246,14 +250,7 @@ public class ServerCommunication {
             }
         }) {
 
-            @Override
-            protected Map<String, String> getParams() {
-                // Posting params to register url
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("page", String.valueOf(1));
 
-                return params;
-            }
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String> headers = new HashMap<String, String>();
@@ -271,8 +268,83 @@ public class ServerCommunication {
 
     }
 
+    protected void showMyAttendences(final String token, final VolleyCallbackAttendences callback) {
+
+        Log.d(TAG, "the  getCurentClass request was sent");
+        StringRequest strReq = new StringRequest(Request.Method.POST,
+                AppConfig.URL_SHOW_MY_ATTENDECES, new Response.Listener<String>() {
+
+            @Override
+            public void onResponse(String response) {
+                //Log.d(TAG,"response: "+response);
+                try {
+                    JSONObject jObj = new JSONObject(response);
+                    success =  jObj.getBoolean("success");
+
+                    if (success) {
+                        //JSONObject userCourses = jObj.getJSONObject("data");
+                        JSONArray userCourses = jObj.getJSONArray("data");
+                        String [] arrayOfUsercourses=new String[userCourses.length()];
+                        int [] arrayOfdurations=new int[userCourses.length()];
+                        for(int i=0;i<userCourses.length();i++){
+                            JSONObject course = userCourses.getJSONObject(i);
+                            arrayOfUsercourses[i]=course.getString("courseName");
+
+                            if(arrayOfUsercourses[i].length()>12){
+                                arrayOfUsercourses[i]=arrayOfUsercourses[i].substring(0,12)+"...";
+                            }
+                            arrayOfdurations[i]=course.getInt("duration");
+                            float convertToMin=(float)arrayOfdurations[i]/60000;
+
+                            arrayOfUsercourses[i]=arrayOfUsercourses[i]+"     duration:"+String.format("%.2f", convertToMin)+" mins";
+                            Log.d(TAG, "course "+i + arrayOfUsercourses[i]+arrayOfdurations[i]);
+                        }
+                        callback.onSuccess(arrayOfUsercourses,arrayOfdurations);
+                        Log.d(TAG, "getMyClass  request was successful");
+                    } else {
+                        // Error occurred in registration.
+                        Log.d(TAG, "getMyClass  request failed");
+
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    Log.d(TAG, "PROBLEM OCCURED");
+                }
+            }
+        }, new Response.ErrorListener() {
+
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.e(TAG, "getMyClass  Error: " + error.getMessage());
+
+            }
+        }) {
+
+
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> headers = new HashMap<String, String>();
+                Log.d(TAG, "TOKEN:"+token);
+                headers.put("Authorization",token);
+                return headers;
+            }
+
+        };
+
+        // Adding request to request queue
+        RequestQueue requestQueue = Volley.newRequestQueue(context);
+        requestQueue.add(strReq);
+        //Log.d(TAG, "AGain" + arrayOfUsercourses.toString());
+
+    }
 
     public interface VolleyCallback{
         void onSuccess(String [] result);
+    }
+    public interface VolleyCallbackAttendences{
+        void onSuccess(String [] resultNameofClasses,int[] resultDuration);
+    }
+    public interface VolleyCallbackReturnurrentClass{
+        void onSuccess(String currntClass);
     }
 }
